@@ -1,4 +1,4 @@
-//this is a general sample of how the regular controller should work
+//routes to the controller/s that is/are handling the user
 import { Router } from "express"
 import  { StoreData }  from "../../controller/user.controller.js" 
 import { ValidateInput } from "../../utils/data.validator.js"

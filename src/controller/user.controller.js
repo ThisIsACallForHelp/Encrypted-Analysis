@@ -1,4 +1,4 @@
-import {DeleteDataService, GetDataService, CreateDataService } from "../services/"
+import {DeleteDataService, GetDataService, CreateDataService } from "../services"
 
 export const DeleteDataFromServer = async (req,res) => {
     return;

@@ -1,9 +1,8 @@
+//the router that router the user to the correct request type routers
 import {Router} from 'express'
-import dataDestroyer from './user.routes/data.destroyer.router.js'
-import dataChecker from './user.routes/existing.data.router.js'
-import inputHandler from './user.routes/user.input.router.js'
+import dataHandler from './user.routes/data.handler.router.js'
+import userHandler from './user.routes/user.handler.router.js'
 const router = Router()
-router.use('/destroy', dataDestroyer)
-router.use('/check',dataChecker)
-router.use('/input', inputHandler)
+router.use('/data', dataHandler)
+router.use('/input', userHandler)
 export default router
