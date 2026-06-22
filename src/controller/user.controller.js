@@ -30,16 +30,3 @@ export const GetServerData = async (req, res) => {
     }
 }
 
-export const CreateNewData = async (req,res) => {
-
-    try{
-        const [salt, password] = [process.env.MASTER_SALT, process.env.MASTER_PASSWORD];
-        const masterKey = GenerateMasterKey(password, salt);
-    }
-    catch(err){
-        console.log("failed to create a new node in the server ", err.message);
-        return res.status(500).json(); 
-    }
-
-    return;
-}

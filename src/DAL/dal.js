@@ -18,7 +18,7 @@ export const MongoConnection = (collectionName) =>{
             }
             catch(err){
                 console.log("couldnt delete node, caught an exception -> ", err.message);
-                throw error;
+                throw err;
             }
         },
         updateNodeInDB: async (NodeID) => {

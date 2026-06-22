@@ -19,6 +19,3 @@ export const aesGcmEnc = (data,key) => {
     }
 }
 
-//decrypt data from aes256gcm data
-export const aesGmcDec = () => {}
-
