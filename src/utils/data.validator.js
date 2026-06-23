@@ -1,5 +1,7 @@
 import fs from "fs"
 import crypto from "crypto"
+import {MongoConnection} from "../DAL/dal.js"
+
 export const ValidateInput = (req,res, next) => {
     return (!req.body && req.method !== "GET" && req.method !== "DELETE") ?
     res.status(400).send("Unable To Continue, The Required Parameters Has Not Been Sent By The User"):
@@ -16,7 +18,24 @@ export const InitEnvEncryption = (next) => {
     next();
 }
 
-//de funcs
+export const CreateUserID = (req, req,next) => {
+    if(!req.session.userID){
+        req.session.userID = crypto.randomUUID();
+    }
+    next();
+}
+
+export const CheckIfNodeIDExists = (NodeID) => {
+    try{
+        const dbResponse = MongoConnection("nodes").getNodeByID(NodeID);
+        return (dbResponse) ? true : false
+    }
+    catch{
+        return false;
+    }
+}
+
+//de funcs <- the best comment of the century
 //generates the public and private keys
 export const genKeys = (seed) => {
     if (!Buffer.isBuffer(seed) || seed.length !== 32)

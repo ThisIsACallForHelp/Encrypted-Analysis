@@ -1,7 +1,7 @@
 import {v4 as uuid4 } from "uuid";
 import {DeleteDataService, GetDataService, CreateDataService } from "../services/service.request.handler"
 import { GenerateMasterKey } from "../services/encryption/argon2id.js"
-import {DeleteDataService, GetDataService, CreateDataService } from "../services"
+import {DeleteDataService, GetDataService, CreateDataService } from "../services/"
 
 export const DeleteDataFromServer = async (req,res) => {
     try{
@@ -18,10 +18,10 @@ export const DeleteDataFromServer = async (req,res) => {
 
 export const GetServerData = async (req, res) => {
     try{
-        const {NodeID: NodeID} = req.params;
+        const {NodeID} = req.params;
         const response = await GetDataService(NodeID);
         const {status, ...Extracted} = response;
-        return res.status(response.status || 200).json(Extracted)
+        return res.status(response.status || 200).json(Extracted);
     }
     catch(err){
         console.log("failed to get the data from the server ", err.message);
@@ -30,3 +30,15 @@ export const GetServerData = async (req, res) => {
     }
 }
 
+export const CreateNewData = async (req,res) => {
+    try{
+        const {NodeID} = req.params;
+        const response = await CreateDataService(req.params.userID);
+        const {status, ...Extracted} = response;
+        return res.status(response.status || 200).json(Extracted);
+    }
+    catch(err){
+        console.log("failed to create a new node in the server ", err.message);
+        return res.status(500).json(); 
+    }
+}
