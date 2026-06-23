@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {MongoConnection} from "../DAL/dal.js"
 import { GenerateMasterKey } from "./encryption/argon2id.js";
 import {aesGcmEnc} from "./encryption/aes.256.gcm.js"
@@ -46,4 +47,16 @@ export const Service = {
         };
 
     }
+=======
+export const DeleteDataService = async (NodeID) => {
+
+}
+
+export const GetDataService = async (NodeID) => {
+
+}
+
+export const CreateDataService = async (...Something) => {
+    
+>>>>>>> 435f56415436fba1f4164f3a5191f091b4bda037
 }

@@ -1,15 +1,9 @@
 {
   "dependencies": {
-<<<<<<< HEAD
     "argon2": "^0.44.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongodb": "^7.3.0"
-=======
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1"
->>>>>>> 169938aa4d4ff6026ba8b609de6e8b24440ca627
   }
 }
