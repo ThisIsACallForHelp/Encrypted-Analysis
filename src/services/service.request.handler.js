@@ -8,11 +8,11 @@ import { randomUUID } from "crypto";
 import { UUID } from "bson";
 export const Service = {
     DeleteDataService: async (NodeID) => {
-        const NodeDB = MongoConnection("Nodes");
+        const NodeDB = await MongoConnection("Nodes");
         return await NodeDB.deleteNodeFromDB(NodeID);
     },
     GetDataService: async (NodeID) => {
-        const NodeDB = MongoConnection("Nodes");
+        const NodeDB = await MongoConnection("Nodes");
         return await NodeDB.getNodeByID(NodeID);
     },
     CreateDataService: async (data) => {
@@ -28,7 +28,8 @@ export const Service = {
         };
         const HashedData = await SHA512(hashSecret, prevHash)
         const [salt, password] = [process.env.MASTER_SALT, process.env.MASTER_PASSWORD];
-        const masterKey = GenerateMasterKey(password, salt);
+        const saltBuffer = Buffer.from(salt, "hex");
+        const masterKey = await GenerateMasterKey(password, saltBuffer);
         const ephemeralKey = randomBytes(32);
         const {cipheredText, iv, authTag}  = aesGcmEnc(data, ephemeralKey);
         const encryptedKey = aesGcmEnc(ephemeralKey, masterKey);

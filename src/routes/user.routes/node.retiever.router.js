@@ -5,6 +5,6 @@ import {Router} from 'express'
 const router = Router()
 
 router.get("/:NodeID", (req,res) => {
-    return await GetServerData(req,res);
+    return GetServerData(req,res);
 })
 export default router
