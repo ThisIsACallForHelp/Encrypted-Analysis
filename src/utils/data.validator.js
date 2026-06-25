@@ -9,9 +9,12 @@ export const ValidateInput = (req,res, next) => {
 }
 
 export const InitEnvEncryption = (req, res, next) => {
+    /*
     if(!req.session.userID){
         req.session.userID = crypto.randomUUID();
     }
+        we need to remove it so it wont crash
+    */
     if(!process.env.MASTER_SALT || !process.env.MASTER_PASSWORD)
     {
         const password = crypto.randomBytes(32).toString("base64");
@@ -22,7 +25,7 @@ export const InitEnvEncryption = (req, res, next) => {
     next();
 }
 
-
+/*
 export const CheckIfNodeIDExists = (NodeID) => {
     try{
         const dbResponse = MongoConnection("nodes").getNodeByID(NodeID);
@@ -32,6 +35,7 @@ export const CheckIfNodeIDExists = (NodeID) => {
         return false;
     }
 }
+
 
 //de funcs <- the best comment of the century
 //generates the public and private keys
@@ -51,6 +55,7 @@ export const genKeys = (seed) => {
         publicKey: publicKey.export({type: 'spki', format: 'pem'})
     }
 }
+
 //encrypts the data
 export const signBlockLedger = (data,privKey) => {
     if(!data || !privKey)
@@ -69,3 +74,4 @@ export const verifyBlockLedger = (data, signatureHex, pubKey) => {
     const signature = Buffer.from(signatureHex,'hex')
     return crypto.verify(null,Buffer.from(data),pubKey,signature)
 }
+*/

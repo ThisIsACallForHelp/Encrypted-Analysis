@@ -1,4 +1,4 @@
-import { createHash} from "crypto"
+import {createHash} from "crypto"
 
 //using SHA512 for extra security
 //what we must feed SHA512 is the hash of the last node and a payload

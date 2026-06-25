@@ -6,6 +6,17 @@ import { SHA512 } from "./encryption/sha512.js";
 import { randomBytes } from "crypto"
 import { randomUUID } from "crypto";
 
+const createPayload = async (data, HashedData) =>{
+    const [salt, password] = [process.env.MASTER_SALT, process.env.MASTER_PASSWORD];
+        const saltBuffer = Buffer.from(salt, "hex");
+        const masterKey = await GenerateMasterKey(password, saltBuffer);
+        const ephemeralKey = randomBytes(32)
+        const {cipheredText, iv, authTag}  = aesGcmEnc(data, ephemeralKey)
+        const encryptedKey = aesGcmEnc(ephemeralKey, masterKey)
+        const signature = EdSig.edSign(HashedData)
+        return {cipheredText, iv, authTag, encryptedKey, signature}
+}
+
 export const Service = {
     DeleteDataService: async (NodeID) => {
         const NodeDB = await MongoConnection("Nodes");
@@ -62,10 +73,8 @@ export const Service = {
     CreateDataService: async (data, ipAddress) => {
         const userID = data.userID || "";
         const NodeID = randomUUID();
-        
         const NodeDB = await MongoConnection("Nodes");
         const prevHash = await NodeDB.getLastNodeHash() || "0".repeat(128);
-        
         const hashSecret = {
             action: "CREATE",
             userID: userID,
@@ -74,17 +83,7 @@ export const Service = {
             ipAddress: ipAddress || "127.0.0.1" 
         };
         const HashedData = await SHA512(hashSecret, prevHash);
-        
-        const [salt, password] = [process.env.MASTER_SALT, process.env.MASTER_PASSWORD];
-        const saltBuffer = Buffer.from(salt, "hex");
-        const masterKey = await GenerateMasterKey(password, saltBuffer);
-        
-        const ephemeralKey = randomBytes(32);
-        const {cipheredText, iv, authTag}  = aesGcmEnc(data, ephemeralKey);
-        const encryptedKey = aesGcmEnc(ephemeralKey, masterKey);
-        
-        const signature = EdSig.edSign(HashedData);
-        
+        const {cipheredText, iv, authTag, encryptedKey, signature} = await createPayload(data,HashedData)
         const dbPayload = {
             nodeId: NodeID,
             userId: userID,
@@ -97,12 +96,10 @@ export const Service = {
             hash: HashedData,
             signature: signature,
             creationTime: new Date().toISOString()
-        };
-
+        }
         await NodeDB.createNewSecretNode(dbPayload);
-        
         return {
-            status: 201,
+            status: 200,
             nodeId: NodeID,
             hash: HashedData,
             signature: signature
@@ -111,15 +108,12 @@ export const Service = {
     UpdateDataService: async (NodeID, data, ipAddress) => {
         const userID = data.userID || ""; 
         const NodeDB = await MongoConnection("Nodes");
-        
         // Ensure the node exists before updating
         const existingNode = await NodeDB.getNodeByID(NodeID);
         if (!existingNode) {
             throw new Error("Node not found");
         }
-
         const prevHash = await NodeDB.getLastNodeHash() || "0".repeat(128);
-        
         const hashSecret = {
             action: "UPDATE",
             userID: userID,
@@ -128,17 +122,7 @@ export const Service = {
             ipAddress: ipAddress || "127.0.0.1"
         };
         const HashedData = await SHA512(hashSecret, prevHash);
-        
-        const [salt, password] = [process.env.MASTER_SALT, process.env.MASTER_PASSWORD];
-        const saltBuffer = Buffer.from(salt, "hex");
-        const masterKey = await GenerateMasterKey(password, saltBuffer);
-        
-        const ephemeralKey = randomBytes(32);
-        const {cipheredText, iv, authTag}  = aesGcmEnc(data, ephemeralKey);
-        const encryptedKey = aesGcmEnc(ephemeralKey, masterKey);
-        
-        const signature = EdSig.edSign(HashedData);
-        
+        const {cipheredText, iv, authTag, encryptedKey, signature} = await createPayload(data,HashedData)
         const dbPayload = {
             nodeId: NodeID,
             userId: userID,
@@ -160,7 +144,6 @@ export const Service = {
             nodeId: NodeID,
             hash: HashedData,
             signature: signature,
-            message: "Node successfully updated"
         };
     }
 }
