@@ -1,4 +1,3 @@
-import {v4 as uuid4 } from "uuid";
 import { Service } from "../services/service.request.handler.js"
 const { DeleteDataService, GetDataService, CreateDataService, UpdateDataService } = Service;
 import { GenerateMasterKey } from "../services/encryption/argon2id.js"

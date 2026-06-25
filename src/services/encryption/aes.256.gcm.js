@@ -19,3 +19,15 @@ export const aesGcmEnc = (data,key) => {
     }
 }
 
+export const aesDecrypter = (ciphertext, KeyObj) => {
+    if(!Buffer.isBuffer(KeyObj.key) || KeyObj.key.length !== 32)
+    {
+        throw new Error("key isn't 32 bytes like it should")
+    }
+    const decryptor = crypto.createDecipheriv(ALGORITHM, KeyObj.key, KeyObj.iv);
+    decryptor.setAuthTag(KeyObj.authTag);
+    let decrypted = decryptor.update(ciphertext, 'hex', 'utf8');
+    decrypted += decryptor.final("utf8");
+    return decrypted;
+}
+

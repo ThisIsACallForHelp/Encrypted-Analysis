@@ -8,10 +8,17 @@ export const ValidateInput = (req,res, next) => {
     next();
 }
 
-export const InitEnvEncryption = (req, res, next) => {
-    if(!req.session.userID){
-        req.session.userID = crypto.randomUUID();
+export const CheckIfUserHasID = (req,res, next) => {
+    let userID = req.cookies?.userID;
+    if(!userID){
+        userID = crypto.randomUUID();
+        res.cookie("userID", userID, { httpOnly: true, maxAge: 900000 });
     }
+    req.userID = userID;
+    next();
+}
+
+export const InitEnvEncryption = (req, res, next) => {
     if(!process.env.MASTER_SALT || !process.env.MASTER_PASSWORD)
     {
         const password = crypto.randomBytes(32).toString("base64");
@@ -23,15 +30,21 @@ export const InitEnvEncryption = (req, res, next) => {
 }
 
 
-export const CheckIfNodeIDExists = (NodeID) => {
+export const CheckIfNodeIDExists = async (req,res, next) => {
     try{
-        const dbResponse = MongoConnection("nodes").getNodeByID(NodeID);
-        return (dbResponse) ? true : false
+        const {NodeID} = req.params;
+        const dbResponse = await MongoConnection("nodes").getNodeByID(NodeID);
+        if(!dbResponse){
+            throw new Error("couldnt fetch the node");
+        }
+        next();
     }
-    catch{
-        return false;
+    catch(err){
+        console.log("caught an exception -> ",  err);
+        throw err;
     }
 }
+
 
 //de funcs <- the best comment of the century
 //generates the public and private keys
@@ -40,17 +53,20 @@ export const genKeys = (seed) => {
     {
         throw new Error("seed size isn't 32 bytes");
     }
+    const ED25519_PKCS8_HEADER = Buffer.from('302e020100300506032b657004220420', 'hex');
+    const derBuffer = Buffer.concat([ED25519_PKCS8_HEADER, seed]);
     const privateKey = crypto.createPrivateKey({
-        key:seed,
-        format:'raw',
-        type:'ed25519'
-    })
+        key: derBuffer,
+        format: 'der',
+        type: 'pkcs8'
+    });
     const publicKey = crypto.createPublicKey(privateKey)
     return {
         privateKey: privateKey.export({type: 'pkcs8', format: 'pem'}),
         publicKey: publicKey.export({type: 'spki', format: 'pem'})
     }
 }
+
 //encrypts the data
 export const signBlockLedger = (data,privKey) => {
     if(!data || !privKey)
